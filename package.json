@@ -1,0 +1,19 @@
+{
+  "name": "emil-ohmygeorge-crawler-challenge",
+  "version": "1.0.0",
+  "description": "Crawler coding challenge for internship application",
+  "main": "crawler.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/emilgoldsmith/emil-ohmygeorge-crawler-challenge.git"
+  },
+  "author": "Emil Goldsmith Olesen",
+  "license": "UNLICENSED",
+  "bugs": {
+    "url": "https://github.com/emilgoldsmith/emil-ohmygeorge-crawler-challenge/issues"
+  },
+  "homepage": "https://github.com/emilgoldsmith/emil-ohmygeorge-crawler-challenge#readme"
+}
