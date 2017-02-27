@@ -9,6 +9,8 @@ const visited = new Set();
 const url_queue = new Deque([SEED_URL]);
 // This is used to track whether we have unterminated requests
 let current_requests = 0;
+// Constants that affect performance
+const CHECK_QUEUE_INTERVAL = 50;
 
 crawl();
 
@@ -21,7 +23,7 @@ function crawl() {
     }
     visit_page(next_url);
   }
-  wait_for_links(2000);
+  wait_for_links(CHECK_QUEUE_INTERVAL);
 }
 
 function wait_for_links(interval) {
@@ -45,15 +47,16 @@ function visit_page(url) {
   console.log("visiting", url);
   visited.add(url);
   current_requests++;
-  const current_url = new URL(url);
-  const base_url = current_url.protocol + "//" + current_url.hostname;
-  const current_hostname = current_url.hostname;
+  const current_url_object = new URL(url);
+  const base_url = current_url_object.protocol + "//" + current_url_object.hostname;
+  const current_hostname = current_url_object.hostname;
   request({
     url,
     headers: {
       'User-Agent': "Emil's test-crawler for internship application coding challenge",
     },
   }, (err, res, body) => {
+    // request returned so decrement current requests
     current_requests--;
     if (err) {
       return console.error("Error occured when requesting " + url + ": " + err);
@@ -72,7 +75,9 @@ function visit_page(url) {
       }
       if (url.protocol && url.hostname !== current_hostname) {
         // Absolute URL for foreign site
-        // url_queue.push(url.href);
+        // For a small test I would recommend commenting out the following line so you
+        // only check the seed domain
+        url_queue.push(url.href);
       }
       else if (url.pathname) {
         // URL for our site, either it's relative or absolute with current host 
