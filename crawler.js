@@ -35,7 +35,9 @@ function crawl() {
 }
 
 function wait_for_links(interval) {
-  console.log(url_queue.isEmpty(), current_requests);
+  if (options.verbose) {
+    console.log(`Current amount of unanswered requests: ${current_requests}`);
+  }
   if (url_queue.isEmpty()) {
     if (current_requests) {
       setTimeout(wait_for_links.bind(null, interval), interval);
@@ -52,7 +54,9 @@ function wait_for_links(interval) {
 }
 
 function visit_page(url) {
-  console.log("visiting", url);
+  if (options.verbose) {
+    console.log("visiting", url);
+  }
   visited.add(url);
   current_requests++;
   const current_url_object = new URL(url);
@@ -88,7 +92,7 @@ function visit_page(url) {
         url_queue.push(url.href);
       }
       else if (url.pathname) {
-        // URL for our site, either it's relative or absolute with current host 
+        // URL for our site, either it's relative or absolute with current host
         // Use unshift to prioritize current domain first
         url_queue.unshift(base_url+url.pathname);
       }
