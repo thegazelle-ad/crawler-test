@@ -18,6 +18,7 @@
   "homepage": "https://github.com/emilgoldsmith/emil-ohmygeorge-crawler-challenge#readme",
   "dependencies": {
     "cheerio": "^0.22.0",
+    "command-line-args": "^4.0.3",
     "double-ended-queue": "^2.1.0-0",
     "request": "^2.79.0",
     "url-parse": "^1.1.8"

@@ -3,8 +3,16 @@ const request = require('request');
 const cheerio = require('cheerio');
 const URL = require('url-parse');
 const Deque = require('double-ended-queue');
+const commandLineArgs = require('command-line-args');
 
-const SEED_URL = process.argv[2];
+const commandLineOptionDefinitions = [
+  { name: 'verbose', alias: 'v', type: Boolean },
+  { name: 'port', alias: 'p', type: String, defaultValue: "3000"},
+];
+
+const options = commandLineArgs(commandLineOptionDefinitions);
+
+const SEED_URL = `http://localhost:${options.port}/`;
 const visited = new Set();
 const url_queue = new Deque([SEED_URL]);
 // This is used to track whether we have unterminated requests
