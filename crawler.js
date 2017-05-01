@@ -8,6 +8,7 @@ const commandLineArgs = require('command-line-args');
 const commandLineOptionDefinitions = [
   { name: 'verbose', alias: 'v', type: Boolean },
   { name: 'port', alias: 'p', type: String, defaultValue: "3000"},
+  { name: 'allErrors', alias: 'e', type: Boolean},
 ];
 
 const options = commandLineArgs(commandLineOptionDefinitions);
@@ -71,7 +72,12 @@ function visit_page(url) {
     // request returned so decrement current requests
     current_requests--;
     if (err) {
-      return console.error("Error occured when requesting " + url + ": " + err);
+      console.error("Error occured when requesting " + url + ": " + err);
+      if (!options.allErrors) {
+        console.error("Exiting crawler with exit code 1 due to error found, if you wish to see all errors use the --allErrors (-e) option");
+        process.exit(1);
+      }
+      return;
     }
     if (res.statusCode !== 200) {
       return;
