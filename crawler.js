@@ -98,9 +98,7 @@ function visit_page(url) {
       }
       if (url.protocol && url.hostname !== current_hostname) {
         // Absolute URL for foreign site
-        // For a small test I would recommend commenting out the following line so you
-        // only check the seed domain
-        url_queue.push(url.href);
+        // We are only staying on localhost
       }
       else if (url.pathname) {
         // URL for our site, either it's relative or absolute with current host
