@@ -61,7 +61,7 @@ function visit_page(url) {
   visited.add(url);
   current_requests++;
   const current_url_object = new URL(url);
-  const base_url = current_url_object.protocol + "//" + current_url_object.hostname;
+  const base_url = current_url_object.protocol + "//" + current_url_object.host;
   const current_hostname = current_url_object.hostname;
   request({
     url,
