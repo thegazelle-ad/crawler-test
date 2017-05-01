@@ -56,7 +56,7 @@ function wait_for_links(interval) {
 
 function visit_page(url) {
   if (options.verbose) {
-    console.log("visiting", url);
+    console.log(`visiting ${url}`);
   }
   visited.add(url);
   current_requests++;
@@ -72,7 +72,7 @@ function visit_page(url) {
     // request returned so decrement current requests
     current_requests--;
     if (err) {
-      console.error("Error occured when requesting " + url + ": " + err);
+      console.error(`Error occured when requesting ${url}: ${err}`);
       if (!options.allErrors) {
         console.error("Exiting crawler with exit code 1 due to error found, if you wish to see all errors use the --allErrors (-e) option");
         process.exit(1);
@@ -80,6 +80,11 @@ function visit_page(url) {
       return;
     }
     if (res.statusCode !== 200) {
+      console.error(`non-200 status code '${res.statusCode}' returned from ${url}`);
+      if (!options.allErrors) {
+        console.error("Exiting crawler with exit code 1 due to error found, if you wish to see all errors use the --allErrors (-e) option");
+        process.exit(1);
+      }
       return;
     }
 
