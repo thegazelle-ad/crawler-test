@@ -64,7 +64,7 @@ function visit_page(url) {
   const base_url = current_url_object.protocol + "//" + current_url_object.host;
   const current_hostname = current_url_object.hostname;
   request({
-    url,
+    url: encodeURI(url),
     headers: {
       'User-Agent': "Emil's test-crawler for internship application coding challenge",
     },
