@@ -9,6 +9,7 @@ const commandLineOptionDefinitions = [
   { name: 'verbose', alias: 'v', type: Boolean },
   { name: 'port', alias: 'p', type: String, defaultValue: "3000"},
   { name: 'allErrors', alias: 'e', type: Boolean},
+  { name: 'checkQueueInterval', alias: 'i', type: Number, defaultValue: 200},
 ];
 
 const options = commandLineArgs(commandLineOptionDefinitions);
@@ -19,7 +20,7 @@ const url_queue = new Deque([SEED_URL]);
 // This is used to track whether we have unterminated requests
 let current_requests = 0;
 // Constants that affect performance
-const CHECK_QUEUE_INTERVAL = 50;
+const CHECK_QUEUE_INTERVAL = options.checkQueueInterval;
 
 crawl();
 
