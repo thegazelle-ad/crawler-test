@@ -16,7 +16,7 @@ const options = commandLineArgs(commandLineOptionDefinitions);
 
 const SEED_URL = `http://localhost:${options.port}/`;
 const visited = new Set();
-const url_queue = new Deque([SEED_URL]);
+const url_queue = new Deque([{url: SEED_URL, source: "seed url"}]);
 // This is used to track whether we have unterminated requests
 let current_requests = 0;
 // Constants that affect performance
@@ -55,7 +55,8 @@ function wait_for_links(interval) {
   }
 }
 
-function visit_page(url) {
+function visit_page(url_wrapper) {
+  const url = url_wrapper.url;
   if (options.verbose) {
     console.log(`visiting ${url}`);
   }
@@ -74,6 +75,7 @@ function visit_page(url) {
     current_requests--;
     if (err) {
       console.error(`Error occured when requesting ${url} : ${err}`);
+      console.error(`Source was ${url_wrapper.source}`);
       if (!options.allErrors) {
         console.error("Exiting crawler with exit code 1 due to error found, if you wish to see all errors use the --allErrors (-e) option");
         process.exit(1);
@@ -104,7 +106,13 @@ function visit_page(url) {
       else if (url.pathname) {
         // URL for our site, either it's relative or absolute with current host
         // Use unshift to prioritize current domain first
-        url_queue.unshift(base_url+url.pathname);
+
+        // For debugging we add a source to each URL
+        const wrapper = {
+          url: base_url + url.pathname,
+          source: current_url_object.href,
+        };
+        url_queue.unshift(wrapper);
       }
       // Else it is garbage such as #
     });
