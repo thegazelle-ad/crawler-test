@@ -120,6 +120,11 @@
       "from": "delayed-stream@>=1.0.0 <1.1.0",
       "resolved": "https://registry.npmjs.org/delayed-stream/-/delayed-stream-1.0.0.tgz"
     },
+    "denque": {
+      "version": "1.1.1",
+      "from": "denque@latest",
+      "resolved": "https://registry.npmjs.org/denque/-/denque-1.1.1.tgz"
+    },
     "dom-serializer": {
       "version": "0.1.0",
       "from": "dom-serializer@>=0.1.0 <0.2.0",
@@ -146,11 +151,6 @@
       "version": "1.5.1",
       "from": "domutils@1.5.1",
       "resolved": "https://registry.npmjs.org/domutils/-/domutils-1.5.1.tgz"
-    },
-    "double-ended-queue": {
-      "version": "2.1.0-0",
-      "from": "double-ended-queue@>=2.1.0-0 <3.0.0",
-      "resolved": "https://registry.npmjs.org/double-ended-queue/-/double-ended-queue-2.1.0-0.tgz"
     },
     "ecc-jsbn": {
       "version": "0.1.1",
