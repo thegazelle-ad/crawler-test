@@ -16,7 +16,7 @@ const commandLineOptionDefinitions = [
 const options = commandLineArgs(commandLineOptionDefinitions);
 
 const SEED_URL = `http://localhost:${options.port}/`;
-const MAX_CURRENT_REQUESTS = 100;
+const MAX_CURRENT_REQUESTS = options.concurrent;
 const visited = new Set();
 const url_queue = new Deque([{url: SEED_URL, source: "seed url"}]);
 // This is used to track whether we have unterminated requests
