@@ -7,20 +7,30 @@ const commandLineArgs = require('command-line-args');
 
 const commandLineOptionDefinitions = [
   { name: 'verbose', alias: 'v', type: Boolean },
-  { name: 'port', alias: 'p', type: String, defaultValue: "3000"},
-  { name: 'allErrors', alias: 'e', type: Boolean},
-  { name: 'checkQueueInterval', alias: 'i', type: Number, defaultValue: 200},
-  { name: 'concurrent', alias: 'c', type: Number, defaultValue: 50},
+  { name: 'port', alias: 'p', type: String, defaultValue: "3000" },
+  { name: 'allErrors', alias: 'e', type: Boolean },
+  { name: 'checkQueueInterval', alias: 'i', type: Number, defaultValue: 200 },
+  { name: 'concurrent', alias: 'c', type: Number, defaultValue: 50 },
+  { name: 'specificPaths', alias: 's', type: String, multiple: true, defaultOption: true },
 ];
 
 const options = commandLineArgs(commandLineOptionDefinitions);
 
-const SEED_URL = `http://localhost:${options.port}/`;
+const BASE_URL = `http://localhost:${options.port}`;
 const MAX_CURRENT_REQUESTS = options.concurrent;
 const visited = new Set();
-const url_queue = new Deque([{url: SEED_URL, source: "seed url"}]);
+
+// Instantiate the queue of URLs and specify the specific urls if specificPaths option is set
+let initialQueueItems = [{url: BASE_URL, source: "seed url"}];
+if (options.specificPaths) {
+  const createUrlWrapper = url => ({ url, source: 'specificPaths option' });
+  initialQueueItems = options.specificPaths.map(path => createUrlWrapper(`${BASE_URL}${path}`));
+}
+const url_queue = new Deque(initialQueueItems);
+
 // This is used to track whether we have unterminated requests
 let current_requests = 0;
+
 // Constants that affect performance
 const CHECK_QUEUE_INTERVAL = options.checkQueueInterval;
 
@@ -106,6 +116,10 @@ function visit_page(url_wrapper) {
       handle_error(statusError, url_wrapper);
       return;
     }
+    if (options.specificPaths) {
+      // If the specificPaths option is set we don't need to continue crawling for new links
+      return;
+    }
 
     const $ = cheerio.load(body);
     const links = $('a');
@@ -160,7 +174,7 @@ function done() {
         }
         return 0;
       });
-      console.log("The following URLs were sources of errors:");
+      console.log("Errors were found. The following URLs were sources of errors:");
       // For formatting we keep track of last source url
       let lastSource = null;
       errorSources.forEach((sourceURLWrapper) => {
