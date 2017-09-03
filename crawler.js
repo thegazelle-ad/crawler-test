@@ -50,15 +50,34 @@ function wait_for_links(interval) {
       setTimeout(wait_for_links.bind(null, interval), interval);
     }
     else {
-      // Queue is empty and no more requests so we must be done
-      return done();
+      // Queue is empty and there are no more requests so we must be done
+      done();
     }
   }
   else {
-    // Queue is no longer empty so crawl those links
+    // Queue is no longer empty or overfull so crawl those links
     crawl();
   }
 }
+
+function handle_error(err, url_wrapper) {
+  const url = url_wrapper.url;
+  console.error(`Error occured when requesting ${url} : ${err}`);
+  console.error(`Source was ${url_wrapper.source}`);
+  if (!options.allErrors) {
+    console.error("Exiting crawler with exit code 1 due to error found, if you wish to see all errors use the --allErrors (-e) option");
+    process.exit(1);
+  }
+  else {
+    // If first time this source has encountered an error add it to the sources
+    if (!errorSources.some((sourceURL) => {
+      return sourceURL === url_wrapper.source;
+    })) {
+      errorSources.push(Object.assign({}, url_wrapper));
+    }
+  }
+}
+
 
 function visit_page(url_wrapper) {
   const url = url_wrapper.url;
@@ -68,61 +87,45 @@ function visit_page(url_wrapper) {
   visited.add(url);
   current_requests++;
   const current_url_object = new URL(url);
-  const base_url = current_url_object.protocol + "//" + current_url_object.host;
+  const base_url = `${current_url_object.protocol}//${current_url_object.host}`;
   const current_hostname = current_url_object.hostname;
   request({
     url: encodeURI(url),
     headers: {
-      'User-Agent': "Emil's test-crawler for internship application coding challenge",
+      'User-Agent': "The Gazelle's internal crawler for end-to-end tests",
     },
   }, (err, res, body) => {
     // request returned so decrement current requests
     current_requests--;
     if (err) {
-      console.error(`Error occured when requesting ${url} : ${err}`);
-      console.error(`Source was ${url_wrapper.source}`);
-      if (!options.allErrors) {
-        console.error("Exiting crawler with exit code 1 due to error found, if you wish to see all errors use the --allErrors (-e) option");
-        process.exit(1);
-      }
-      else {
-        // If first time this source has encountered an error add it to the sources
-        if (!errorSources.some((sourceURL) => {
-          return sourceURL === url_wrapper.source;
-        })) {
-          errorSources.push({url, source: url_wrapper.source});
-        }
-      }
+      handle_error(err, url_wrapper);
       return;
     }
     if (res.statusCode !== 200) {
-      console.error(`non-200 status code '${res.statusCode}' returned from ${url}`);
-      if (!options.allErrors) {
-        console.error("Exiting crawler with exit code 1 due to error found, if you wish to see all errors use the --allErrors (-e) option");
-        process.exit(1);
-      }
+      const statusError = new Error(`non-200 status code '${res.statusCode}' returned from ${url}`);
+      handle_error(statusError, url_wrapper);
       return;
     }
 
     const $ = cheerio.load(body);
     const links = $('a');
     $(links).each((index, link) => {
-      const url = new URL($(link).attr('href'));
-      if (url.pathname.split("/")[1] === "cdn-cgi") {
+      const discoveredUrl = new URL($(link).attr('href'));
+      if (discoveredUrl.pathname.split("/")[1] === "cdn-cgi") {
         // It's a cloudflare virtual directory so ignore it
         return;
       }
-      if (url.protocol && url.hostname !== current_hostname) {
+      if (discoveredUrl.protocol && discoveredUrl.hostname !== current_hostname) {
         // Absolute URL for foreign site
         // We are only staying on localhost
       }
-      else if (url.pathname) {
+      else if (discoveredUrl.pathname) {
         // URL for our site, either it's relative or absolute with current host
         // Use unshift to prioritize current domain first
 
         // For debugging we add a source to each URL
         const wrapper = {
-          url: base_url + url.pathname,
+          url: base_url + discoveredUrl.pathname,
           source: current_url_object.href,
         };
         if (visited.has(wrapper.url)) {
@@ -167,6 +170,8 @@ function done() {
         console.log(`error happened at ${sourceURLWrapper.source} when trying to access ${sourceURLWrapper.url}`);
         lastSource = sourceURLWrapper.source;
       });
+      // As there were errors we want to exit with exit code 1
+      process.exit(1);
     }
     else {
       console.log("The crawl was error-free, congratulations!");
